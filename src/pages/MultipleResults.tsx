@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/Images/smart_miror_logo.png"; // Adjust this path to your logo
 
-import TryMoreOutfitModal from "../components/TryMoreOutfitModal";
+// import TryMoreOutfitModal from "../components/TryMoreOutfitModal";
 import "../styles/ai-suggestion-results.css"; // Use same styles as AI suggestions
 
 interface Outfit {
@@ -18,7 +18,7 @@ interface TryOnResult {
   id: number;
   outfitId: number;
   resultImageUrl: string;
-  status: 'processing' | 'completed' | 'failed';
+  status: "processing" | "completed" | "failed";
   processedAt?: string;
   outfit: Outfit;
 }
@@ -44,45 +44,49 @@ const MultipleResults: FC = () => {
   const locationState = location.state as LocationState;
 
   const [batchStatus, setBatchStatus] = useState<BatchStatus>({
-    batchId: '',
+    batchId: "",
     totalOutfits: 0,
     completedCount: 0,
     failedCount: 0,
     results: [],
-    isComplete: false
+    isComplete: false,
   });
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showTryMoreModal, setShowTryMoreModal] = useState(false);
+  // const [showTryMoreModal, setShowTryMoreModal] = useState(false);
 
   // Poll for batch results
   const pollBatchResults = useCallback(async () => {
     if (!locationState?.batchId) return;
 
     try {
-      const response = await axios.get(`/api/tryon/batch-status/${locationState.batchId}`);
-      
+      const response = await axios.get(
+        `/api/tryon/batch-status/${locationState.batchId}`
+      );
+
       if (response.data.success) {
         const data = response.data.data;
         setBatchStatus({
           batchId: data.batchId,
           totalOutfits: data.totalOutfits,
           completedCount: data.totalProcessed,
-          failedCount: data.results.filter((r: TryOnResult) => r.status === 'failed').length,
+          failedCount: data.results.filter(
+            (r: TryOnResult) => r.status === "failed"
+          ).length,
           results: data.results,
-          isComplete: data.isComplete
+          isComplete: data.isComplete,
         });
-        
+
         if (data.isComplete) {
-          console.log('✅ Multiple selection batch completed');
+          console.log("✅ Multiple selection batch completed");
         }
       } else {
         setError(response.data.message);
       }
     } catch (err) {
-      console.error('Error polling batch results:', err);
-      setError('Failed to fetch results');
+      console.error("Error polling batch results:", err);
+      setError("Failed to fetch results");
     } finally {
       setLoading(false);
     }
@@ -90,14 +94,14 @@ const MultipleResults: FC = () => {
 
   useEffect(() => {
     if (!locationState) {
-      navigate('/home');
+      navigate("/home");
       return;
     }
 
-    setBatchStatus(prev => ({
+    setBatchStatus((prev) => ({
       ...prev,
       batchId: locationState.batchId,
-      totalOutfits: locationState.selectedOutfits.length
+      totalOutfits: locationState.selectedOutfits.length,
     }));
 
     pollBatchResults();
@@ -106,7 +110,12 @@ const MultipleResults: FC = () => {
   useEffect(() => {
     if (!batchStatus.isComplete && locationState?.batchId) {
       const interval = setInterval(pollBatchResults, 2000);
-      return () => clearInterval(interval);
+
+      // Cleanup interval on component unmount or navigation
+      return () => {
+        clearInterval(interval);
+        console.log("Polling interval cleared.");
+      };
     }
   }, [batchStatus.isComplete, locationState, pollBatchResults]);
 
@@ -120,7 +129,7 @@ const MultipleResults: FC = () => {
         <div className="error-screen">
           <h2>❌ Error</h2>
           <p>Invalid session. Please go back and try again.</p>
-          <button onClick={() => navigate('/home')} className="back-button">
+          <button onClick={() => navigate("/home")} className="back-button">
             Go Home
           </button>
         </div>
@@ -144,11 +153,17 @@ const MultipleResults: FC = () => {
     <div className="ai-suggestion-container">
       {/* Header */}
       <div className="header">
-               <img src={logo} alt="Logo" className="logo" onClick={() => navigate("/home")}/>
+        <img
+          src={logo}
+          alt="Logo"
+          className="logo"
+          onClick={() => navigate("/home")}
+        />
 
         <h1>🎯 Multiple Selection Results</h1>
         <div className="result-counter">
-          {batchStatus.results.length} of {batchStatus.totalOutfits} {batchStatus.isComplete ? 'completed' : 'processing...'}
+          {batchStatus.results.length} of {batchStatus.totalOutfits}{" "}
+          {batchStatus.isComplete ? "completed" : "processing..."}
         </div>
       </div>
 
@@ -165,9 +180,9 @@ const MultipleResults: FC = () => {
         <div className="original-card">
           <h3>Your Photo</h3>
           <div className="card-frame">
-            <img 
-              src={locationState.capturedImage} 
-              alt="Your captured photo" 
+            <img
+              src={locationState.capturedImage}
+              alt="Your captured photo"
               className="original-photo"
             />
           </div>
@@ -180,19 +195,23 @@ const MultipleResults: FC = () => {
               <span className="card-number">#{index + 1}</span>
               <h3>{result.outfit.name}</h3>
               <span className={`status-badge ${result.status}`}>
-                {result.status === 'completed' ? '✅' : result.status === 'failed' ? '❌' : '⏳'}
+                {result.status === "completed"
+                  ? "✅"
+                  : result.status === "failed"
+                  ? "❌"
+                  : "⏳"}
               </span>
             </div>
-            
+
             <div className="card-content">
               <div className="card-frame">
-                {result.status === 'completed' ? (
-                  <img 
-                    src={result.resultImageUrl} 
-                    alt={`Try-on result for ${result.outfit.name}`} 
+                {result.status === "completed" ? (
+                  <img
+                    src={result.resultImageUrl}
+                    alt={`Try-on result for ${result.outfit.name}`}
                     className="result-photo"
                   />
-                ) : result.status === 'failed' ? (
+                ) : result.status === "failed" ? (
                   <div className="failed-result">
                     <p>❌ Processing Failed</p>
                     <small>Unable to process this outfit</small>
@@ -204,7 +223,7 @@ const MultipleResults: FC = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="outfit-info">
                 <p>{result.outfit.description}</p>
               </div>
@@ -213,59 +232,57 @@ const MultipleResults: FC = () => {
         ))}
 
         {/* Loading Cards for remaining outfits */}
-        {!batchStatus.isComplete && locationState.selectedOutfits.length > batchStatus.results.length && 
-          locationState.selectedOutfits.slice(batchStatus.results.length).map((outfit, index) => (
-          <div key={`loading-${outfit.id}`} className="suggestion-card loading-card">
-            <div className="card-header">
-              <span className="card-number">#{batchStatus.results.length + index + 1}</span>
-              <h3>{outfit.name}</h3>
-              <span className="status-badge processing">⏳</span>
-            </div>
-            
-            <div className="card-content">
-              <div className="card-frame">
-                <div className="waiting-result">
-                  <div className="loading-spinner-small"></div>
-                  <p>Waiting for processing...</p>
+        {!batchStatus.isComplete &&
+          locationState.selectedOutfits.length > batchStatus.results.length &&
+          locationState.selectedOutfits
+            .slice(batchStatus.results.length)
+            .map((outfit, index) => (
+              <div
+                key={`loading-${outfit.id}`}
+                className="suggestion-card loading-card"
+              >
+                <div className="card-header">
+                  <span className="card-number">
+                    #{batchStatus.results.length + index + 1}
+                  </span>
+                  <h3>{outfit.name}</h3>
+                  <span className="status-badge processing">⏳</span>
+                </div>
+
+                <div className="card-content">
+                  <div className="card-frame">
+                    <div className="waiting-result">
+                      <div className="loading-spinner-small"></div>
+                      <p>Waiting for processing...</p>
+                    </div>
+                  </div>
+
+                  <div className="outfit-info">
+                    <p>{outfit.description}</p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="outfit-info">
-                <p>{outfit.description}</p>
-              </div>
-            </div>
-          </div>
-        ))}
+            ))}
       </div>
 
       {/* Footer */}
-      {batchStatus.isComplete && (
-        <div className="completion-footer">
-          <h3>🎉 All Selected Outfits Complete!</h3>
-          <p>Successfully processed {batchStatus.results.filter(r => r.status === 'completed').length} out of {batchStatus.totalOutfits} outfits!</p>
-          
-          <div className="mt-6">
-            <button
-              onClick={() => setShowTryMoreModal(true)}
-              className="px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
-              style={{
-                background: 'var(--accent-primary)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border-light)'
-              }}
-            >
-              👗 Try More Outfits
-            </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Try More Outfit Modal */}
-      <TryMoreOutfitModal
-        isOpen={showTryMoreModal}
-        onClose={() => setShowTryMoreModal(false)}
-        capturedImage={locationState?.capturedImage || ''}
-      />
+      {/* <div className="try-more-outfits">
+        <button
+          onClick={() => setShowTryMoreModal(true)}
+          className="try-more-button"
+        >
+          Try More Outfits
+        </button>
+      </div> */}
+
+      {/* Try More Outfits Modal */}
+      {/* {showTryMoreModal && (
+        <TryMoreOutfitModal
+          isOpen={showTryMoreModal}
+          onClose={() => setShowTryMoreModal(false)}
+          capturedImage={locationState.capturedImage}
+        />
+      )} */}
     </div>
   );
 };

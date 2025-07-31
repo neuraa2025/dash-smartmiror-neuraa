@@ -548,7 +548,7 @@ const CombinedTryOnPage: FC = () => {
                       alt={outfit.name}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
-                          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2QwZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
+                          "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvcnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2QwZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K";
                       }}
                     />
                     {selectionMode === "multiple" &&
@@ -587,6 +587,15 @@ const CombinedTryOnPage: FC = () => {
 
           {/* Right: Captured Image */}
           <div className="image-preview">
+            {/* Add buttons to trigger popup */}
+      <div className="popup-trigger-buttons">
+        <button
+          onClick={() => setShowPopup(true)}
+          className="trigger-popup-button"
+        >
+          Select Multiple Options
+        </button>
+      </div>
             <h3>{currentTryOnResult ? "Try-On Result" : "Your Photo"}</h3>
             <div className="preview-image-container">
               <img
@@ -694,6 +703,8 @@ const CombinedTryOnPage: FC = () => {
           </div>
         </div>
       )}
+
+      
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
     </div>

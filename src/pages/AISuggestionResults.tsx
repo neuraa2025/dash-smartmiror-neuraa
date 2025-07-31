@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/Images/smart_miror_logo.png"; // Adjust this path to your logo
 
-import TryMoreOutfitModal from "../components/TryMoreOutfitModal";
 import "../styles/ai-suggestion-results.css";
 
 interface Outfit {
@@ -52,7 +51,6 @@ const AISuggestionResults: FC = () => {
   const [totalOutfits, setTotalOutfits] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [showTryMoreModal, setShowTryMoreModal] = useState(false);
 
   useEffect(() => {
     if (!locationState?.capturedImage) {
@@ -276,20 +274,6 @@ const AISuggestionResults: FC = () => {
             Found {results.filter((r) => r.status === "completed").length}{" "}
             perfect matches for you!
           </p>
-
-          <div className="mt-6">
-            <button
-              onClick={() => setShowTryMoreModal(true)}
-              className="px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
-              style={{
-                background: "var(--accent-primary)",
-                color: "var(--text-primary)",
-                border: "1px solid var(--border-light)",
-              }}
-            >
-              👗 Try More Outfits
-            </button>
-          </div>
         </div>
       )}
 
@@ -299,14 +283,6 @@ const AISuggestionResults: FC = () => {
           ↑
         </button>
       )}
-
-      {/* Try More Outfit Modal */}
-      <TryMoreOutfitModal
-        isOpen={showTryMoreModal}
-        onClose={() => setShowTryMoreModal(false)}
-        capturedImage={locationState?.capturedImage || ""}
-        currentGender={locationState?.genderData?.name}
-      />
     </div>
   );
 };
